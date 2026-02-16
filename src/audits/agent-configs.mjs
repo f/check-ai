@@ -115,7 +115,7 @@ export const checks = [
     id: 'claude-md',
     label: 'CLAUDE.md',
     section,
-    weight: 0,
+    weight: 3,
     paths: ['CLAUDE.md', 'claude.md'],
     type: 'file',
     description: 'Claude Code project instructions',
