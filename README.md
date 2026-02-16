@@ -2,7 +2,7 @@
   <img src="logo.svg" alt="check-ai logo" width="120" height="120">
 </p>
 
-<h1 align="center">check-ai</h1>
+<h1 align="center">npx check-ai</h1>
 
 <p align="center"><strong>Audit any repository for AI-readiness.</strong></p>
 
