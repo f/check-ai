@@ -2,6 +2,8 @@
  * 🧹 Repo Hygiene — foundational signals for a well-structured repository.
  */
 
+import { execSync } from 'child_process';
+
 export const section = 'Repo Hygiene';
 
 export const checks = [
@@ -126,6 +128,26 @@ export const checks = [
     type: 'any',
     description: 'Reproducible dev environment for agents and contributors',
   },
+  {
+    id: 'commit-messages',
+    label: 'Descriptive commits',
+    section,
+    weight: 3,
+    paths: [],
+    type: 'custom',
+    custom: 'commit-messages',
+    description: 'Recent commit messages are descriptive (not just "fix" or "update")',
+  },
+  {
+    id: 'conventional-commits',
+    label: 'Conventional commits',
+    section,
+    weight: 2,
+    paths: [],
+    type: 'custom',
+    custom: 'conventional-commits',
+    description: 'Commit messages follow conventional format (feat:, fix:, chore:, etc.)',
+  },
 ];
 
 /**
@@ -182,5 +204,53 @@ export function analyze(rootDir, ctx) {
     };
   })();
 
+  // git commit message checks
+  const commits = getRecentCommits(rootDir);
+
+  // Descriptive commit messages
+  results['commit-messages'] = (() => {
+    if (commits.length === 0) return { found: false, detail: 'no git history' };
+
+    const lazy = /^(fix|update|wip|test|changes|stuff|misc|tmp|asdf|todo|\.|-)$/i;
+    const good = commits.filter((m) => m.length >= 10 && !lazy.test(m.trim()));
+    const ratio = good.length / commits.length;
+
+    return {
+      found: ratio >= 0.6,
+      detail: `${good.length}/${commits.length} recent commits are descriptive`,
+    };
+  })();
+
+  // Conventional commits (feat:, fix:, chore:, docs:, etc.)
+  results['conventional-commits'] = (() => {
+    if (commits.length === 0) return { found: false, detail: 'no git history' };
+
+    const conventional = /^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\(.+\))?!?:/i;
+    const matching = commits.filter((m) => conventional.test(m.trim()));
+    const ratio = matching.length / commits.length;
+
+    return {
+      found: ratio >= 0.5,
+      detail: `${matching.length}/${commits.length} use conventional format`,
+    };
+  })();
+
   return results;
+}
+
+/**
+ * Read the last 10 commit messages from git log.
+ */
+function getRecentCommits(rootDir) {
+  try {
+    const output = execSync('git log --oneline --no-decorate -n 10 --format=%s', {
+      cwd: rootDir,
+      encoding: 'utf-8',
+      timeout: 5000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return output.trim().split('\n').filter((l) => l.trim().length > 0);
+  } catch {
+    return [];
+  }
 }
