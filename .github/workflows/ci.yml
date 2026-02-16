@@ -22,7 +22,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dev dependencies
-        run: npm install --save-dev eslint prettier
+        run: npm install --save-dev eslint@9 prettier
 
       - name: Lint
         run: npm run lint
