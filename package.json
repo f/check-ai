@@ -1,0 +1,35 @@
+{
+  "name": "check-ai",
+  "version": "1.0.0",
+  "description": "Audit any repo for AI-readiness. Checks agent configs, repo hygiene, grounding docs, testing, MCP integrations, and scores it all.",
+  "bin": {
+    "check-ai": "./bin/cli.mjs"
+  },
+  "type": "module",
+  "files": [
+    "bin",
+    "src"
+  ],
+  "keywords": [
+    "ai",
+    "audit",
+    "agents",
+    "agents-md",
+    "cursor",
+    "windsurf",
+    "claude",
+    "copilot",
+    "codex",
+    "gemini",
+    "mcp",
+    "ai-readiness",
+    "cli",
+    "npx"
+  ],
+  "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
