@@ -46,6 +46,9 @@ const TOOL_SIGNALS = [
   '.augment-guidelines.md',
   '.qodo',
   '.kiro',
+  // CLIO - Perl-based AI coding assistant
+  '.clio',
+  '.clio/instructions.md',
 ];
 
 export const checks = [
@@ -409,6 +412,26 @@ export const checks = [
     paths: ['.qodo'],
     type: 'any',
     description: 'Qodo AI code quality configuration',
+  },
+
+  // CLIO
+  {
+    id: 'clio-dir',
+    label: '.clio/',
+    section,
+    weight: 0,
+    paths: ['.clio'],
+    type: 'dir',
+    description: 'CLIO AI assistant configuration directory',
+  },
+  {
+    id: 'clio-instructions-file',
+    label: '.clio/instructions.md',
+    section,
+    weight: 0,
+    paths: ['.clio/instructions.md'],
+    type: 'file',
+    description: 'CLIO project-specific agent instructions',
   },
 ];
 

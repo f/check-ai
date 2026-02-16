@@ -24,6 +24,7 @@ const SECTION_ORDER = [
   'Prompts & Skills',
   'MCP',
   'AI Deps',
+  'CLIO',
 ];
 
 export function score(findings) {
