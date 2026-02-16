@@ -69,4 +69,22 @@ export const checks = [
     deepPattern: '.instructions.md',
     description: 'VS Code / Copilot scoped instruction files',
   },
+  {
+    id: 'aiderignore',
+    label: '.aiderignore',
+    section,
+    weight: 2,
+    paths: ['.aiderignore'],
+    type: 'file',
+    description: 'Aider file exclusion list for context control',
+  },
+  {
+    id: 'gitattributes',
+    label: '.gitattributes',
+    section,
+    weight: 1,
+    paths: ['.gitattributes'],
+    type: 'file',
+    description: 'Language detection hints help AI tools classify files correctly',
+  },
 ];

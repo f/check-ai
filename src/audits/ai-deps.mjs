@@ -36,6 +36,17 @@ const AI_PACKAGES = new Set([
   'tiktoken',
   'gpt-tokenizer',
   'js-tiktoken',
+  '@ai-sdk/azure',
+  '@ai-sdk/amazon-bedrock',
+  '@ai-sdk/mistral',
+  '@ai-sdk/xai',
+  'mastra',
+  '@mastra/core',
+  '@copilotkit/react-core',
+  'genkit',
+  '@genkit-ai/core',
+  '@genkit-ai/ai',
+  'ai-jsx',
 ]);
 
 // AI-related Python packages
@@ -56,7 +67,30 @@ const AI_PY_PACKAGES = [
   'autogen',
   'smolagents',
   'mcp',
+  'pydantic-ai',
+  'instructor',
+  'guidance',
+  'dspy',
+  'dspy-ai',
+  'semantic-kernel',
+  'haystack-ai',
+  'litellm',
+  'letta',
+  'agno',
+  'google-genai',
+  'google-adk',
 ];
+
+// AI-related Go modules
+const AI_GO_PACKAGES = [
+  'github.com/sashabaranov/go-openai',
+  'github.com/tmc/langchaingo',
+  'github.com/anthropics/anthropic-sdk-go',
+  'github.com/google/generative-ai-go',
+];
+
+// AI-related Rust crates
+const AI_RUST_PACKAGES = ['async-openai', 'rig-core', 'llm-chain', 'kalosm', 'mistralrs'];
 
 export const checks = [
   {
@@ -102,6 +136,24 @@ export function analyze(rootDir, ctx) {
         for (const pkg of AI_PY_PACKAGES) {
           if (content.includes(pkg)) found.push(pkg);
         }
+      }
+    }
+
+    // go.mod
+    const goModPath = ctx.join(rootDir, 'go.mod');
+    if (ctx.existsSync(goModPath)) {
+      const content = ctx.readFileSafe(goModPath).toLowerCase();
+      for (const pkg of AI_GO_PACKAGES) {
+        if (content.includes(pkg.toLowerCase())) found.push(pkg.split('/').pop());
+      }
+    }
+
+    // Cargo.toml
+    const cargoPath = ctx.join(rootDir, 'Cargo.toml');
+    if (ctx.existsSync(cargoPath)) {
+      const content = ctx.readFileSafe(cargoPath).toLowerCase();
+      for (const pkg of AI_RUST_PACKAGES) {
+        if (content.includes(pkg)) found.push(pkg);
       }
     }
 

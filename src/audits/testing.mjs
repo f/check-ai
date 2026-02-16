@@ -59,4 +59,22 @@ export const checks = [
     type: 'file',
     description: 'Coverage tracking ensures agent changes maintain quality',
   },
+  {
+    id: 'test-snapshots',
+    label: 'Test snapshots',
+    section,
+    weight: 1,
+    paths: ['__snapshots__', 'tests/__snapshots__', 'test/__snapshots__', 'src/__snapshots__'],
+    type: 'dir',
+    description: 'Snapshot tests catch unintended output changes from agent edits',
+  },
+  {
+    id: 'test-fixtures',
+    label: 'Test fixtures',
+    section,
+    weight: 1,
+    paths: ['fixtures', 'test/fixtures', 'tests/fixtures', '__fixtures__', 'test/__fixtures__'],
+    type: 'dir',
+    description: 'Test fixtures provide stable reference data for verification',
+  },
 ];
