@@ -6,6 +6,12 @@
 
 <p align="center"><strong>Audit any repository for AI-readiness.</strong></p>
 
+<p align="center">
+
+[![AI Ready](https://img.shields.io/badge/AI%20Ready-C%204.9%2F10-yellow)](https://github.com/f/check-ai)
+
+</p>
+
 One command. 66 checks. Zero dependencies. Scans for agent configs, repo hygiene, grounding docs, testing safety nets, prompt templates, MCP integrations, AI dependencies — and scores it all on a **0–10 scale**.
 
 ```
