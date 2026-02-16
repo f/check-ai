@@ -1,6 +1,6 @@
 {
   "name": "check-ai",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Audit any repo for AI-readiness. Checks agent configs, repo hygiene, grounding docs, testing, MCP integrations, and scores it all.",
   "bin": {
     "check-ai": "./bin/cli.mjs"
