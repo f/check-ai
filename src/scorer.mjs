@@ -6,12 +6,12 @@
  */
 
 const TIERS = [
-  { min: 9,  grade: 'A+', label: 'Exemplary — fully AI-ready',           color: 'green',  emoji: '🏆' },
-  { min: 7,  grade: 'A',  label: 'Strong — AI-ready',                    color: 'green',  emoji: '✅' },
-  { min: 5,  grade: 'B',  label: 'Decent — partially AI-ready',          color: 'yellow', emoji: '🔶' },
-  { min: 3,  grade: 'C',  label: 'Weak — minimal AI setup',              color: 'yellow', emoji: '⚠️'  },
-  { min: 1,  grade: 'D',  label: 'Poor — barely AI-aware',               color: 'red',    emoji: '🔻' },
-  { min: 0,  grade: 'F',  label: 'None — not AI-ready',                  color: 'red',    emoji: '❌' },
+  { min: 9, grade: 'A+', label: 'Exemplary — fully AI-ready', color: 'green', emoji: '🏆' },
+  { min: 7, grade: 'A', label: 'Strong — AI-ready', color: 'green', emoji: '✅' },
+  { min: 5, grade: 'B', label: 'Decent — partially AI-ready', color: 'yellow', emoji: '🔶' },
+  { min: 3, grade: 'C', label: 'Weak — minimal AI setup', color: 'yellow', emoji: '⚠️' },
+  { min: 1, grade: 'D', label: 'Poor — barely AI-aware', color: 'red', emoji: '🔻' },
+  { min: 0, grade: 'F', label: 'None — not AI-ready', color: 'red', emoji: '❌' },
 ];
 
 // Ordered section list so the report always prints in a logical sequence
@@ -28,9 +28,7 @@ const SECTION_ORDER = [
 
 export function score(findings) {
   const maxPoints = findings.reduce((sum, f) => sum + f.weight, 0);
-  const earnedPoints = findings
-    .filter(f => f.found)
-    .reduce((sum, f) => sum + f.weight, 0);
+  const earnedPoints = findings.filter((f) => f.found).reduce((sum, f) => sum + f.weight, 0);
 
   const normalized = maxPoints > 0 ? (earnedPoints / maxPoints) * 10 : 0;
 
@@ -47,7 +45,7 @@ export function score(findings) {
     sections[sec].items.push(f);
   }
 
-  const tier = TIERS.find(t => normalized >= t.min) || TIERS[TIERS.length - 1];
+  const tier = TIERS.find((t) => normalized >= t.min) || TIERS[TIERS.length - 1];
 
   return {
     earnedPoints,
@@ -58,7 +56,7 @@ export function score(findings) {
     color: tier.color,
     emoji: tier.emoji,
     sections,
-    foundCount: findings.filter(f => f.found).length,
+    foundCount: findings.filter((f) => f.found).length,
     totalChecks: findings.length,
   };
 }

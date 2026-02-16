@@ -1,0 +1,62 @@
+/**
+ * 🧪 Testing Safety Net — tests catch agent-introduced regressions.
+ */
+
+export const section = 'Testing';
+
+export const checks = [
+  {
+    id: 'test-dir',
+    label: 'Test directory',
+    section,
+    weight: 5,
+    paths: [
+      'tests',
+      'test',
+      '__tests__',
+      'spec',
+      'specs',
+      'src/tests',
+      'src/__tests__',
+      'src/test',
+      'e2e',
+      'cypress',
+      'playwright',
+    ],
+    type: 'dir',
+    description: 'Tests catch agent-introduced regressions',
+  },
+  {
+    id: 'test-config',
+    label: 'Test runner config',
+    section,
+    weight: 3,
+    paths: [
+      'jest.config.js',
+      'jest.config.ts',
+      'jest.config.mjs',
+      'jest.config.cjs',
+      'vitest.config.ts',
+      'vitest.config.js',
+      'vitest.config.mjs',
+      'playwright.config.ts',
+      'playwright.config.js',
+      'cypress.config.ts',
+      'cypress.config.js',
+      'pytest.ini',
+      'conftest.py',
+      '.rspec',
+    ],
+    type: 'file',
+    description: 'Configured test runner for automated verification',
+  },
+  {
+    id: 'coverage-config',
+    label: 'Coverage config',
+    section,
+    weight: 2,
+    paths: ['.nycrc', '.nycrc.json', '.c8rc.json', '.coveragerc', 'codecov.yml', '.codecov.yml'],
+    type: 'file',
+    description: 'Coverage tracking ensures agent changes maintain quality',
+  },
+];

@@ -5,44 +5,44 @@
 
 import { createInterface } from 'readline';
 
-const RESET  = '\x1b[0m';
-const BOLD   = '\x1b[1m';
-const DIM    = '\x1b[2m';
+const RESET = '\x1b[0m';
+const BOLD = '\x1b[1m';
+const DIM = '\x1b[2m';
 const ITALIC = '\x1b[3m';
-const RED    = '\x1b[31m';
-const GREEN  = '\x1b[32m';
+const RED = '\x1b[31m';
+const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
-const BLUE   = '\x1b[34m';
-const CYAN   = '\x1b[36m';
-const WHITE  = '\x1b[37m';
-const GRAY   = '\x1b[90m';
+const BLUE = '\x1b[34m';
+const CYAN = '\x1b[36m';
+const WHITE = '\x1b[37m';
+const GRAY = '\x1b[90m';
 const MAGENTA = '\x1b[35m';
-const BG_GREEN  = '\x1b[42m';
+const BG_GREEN = '\x1b[42m';
 const BG_YELLOW = '\x1b[43m';
-const BG_RED    = '\x1b[41m';
+const BG_RED = '\x1b[41m';
 const HIDE_CURSOR = '\x1b[?25l';
 const SHOW_CURSOR = '\x1b[?25h';
-const CLEAR_LINE  = '\x1b[2K\r';
+const CLEAR_LINE = '\x1b[2K\r';
 
-const COLORS    = { green: GREEN, yellow: YELLOW, red: RED };
+const COLORS = { green: GREEN, yellow: YELLOW, red: RED };
 const BG_COLORS = { green: BG_GREEN, yellow: BG_YELLOW, red: BG_RED };
 
 const SECTION_ICONS = {
-  'Repo Hygiene':    '🧹',
-  'Grounding Docs':  '📄',
-  'Testing':         '🧪',
-  'Agent Configs':   '🤖',
-  'AI Context':      '🔒',
-  'Prompts & Skills':'🧩',
-  'MCP':             '🔌',
-  'AI Deps':         '📦',
+  'Repo Hygiene': '🧹',
+  'Grounding Docs': '📄',
+  Testing: '🧪',
+  'Agent Configs': '🤖',
+  'AI Context': '🔒',
+  'Prompts & Skills': '🧩',
+  MCP: '🔌',
+  'AI Deps': '📦',
 };
 
 // ───────────────────────────────────────────────────────────────────────
 //  Utilities
 // ───────────────────────────────────────────────────────────────────────
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function bar(earned, max, width = 20) {
   const ratio = max > 0 ? earned / max : 0;
@@ -64,7 +64,9 @@ function pct(earned, max) {
   return `${Math.round((earned / max) * 100)}%`;
 }
 
-function w(s) { process.stdout.write(s); }
+function w(s) {
+  process.stdout.write(s);
+}
 
 // ───────────────────────────────────────────────────────────────────────
 //  Spinner for scan progress
@@ -130,9 +132,10 @@ function renderItem(item) {
   if (item.found) {
     const detail = item.detail ? ` ${GRAY}${item.detail}${RESET}` : '';
     const matchPath = item.matchedPath ? ` ${GRAY}→ ${item.matchedPath}${RESET}` : '';
-    const matches = item.matches && item.matches.length > 0
-      ? ` ${GRAY}→ ${item.matches.slice(0, 5).join(', ')}${item.matches.length > 5 ? ` +${item.matches.length - 5} more` : ''}${RESET}`
-      : '';
+    const matches =
+      item.matches && item.matches.length > 0
+        ? ` ${GRAY}→ ${item.matches.slice(0, 5).join(', ')}${item.matches.length > 5 ? ` +${item.matches.length - 5} more` : ''}${RESET}`
+        : '';
     return `     ${GREEN}✔${RESET}  ${item.label}${detail}${matchPath}${matches}`;
   }
   return `     ${DIM}✘  ${item.label}${RESET}`;
@@ -143,12 +146,9 @@ function renderItem(item) {
 // ───────────────────────────────────────────────────────────────────────
 
 export async function reportInteractive(result, findings, opts = {}) {
-  const {
-    normalized, grade, label, color, emoji,
-    sections, earnedPoints, maxPoints, foundCount, totalChecks,
-  } = result;
+  const { normalized, grade, label, color, emoji, sections, earnedPoints, maxPoints, foundCount, totalChecks } = result;
 
-  const c  = COLORS[color] || WHITE;
+  const c = COLORS[color] || WHITE;
   const bg = BG_COLORS[color] || '';
   const line = '─'.repeat(50);
 
@@ -200,12 +200,9 @@ export async function reportInteractive(result, findings, opts = {}) {
 // ───────────────────────────────────────────────────────────────────────
 
 export function report(result, findings, opts = {}) {
-  const {
-    normalized, grade, label, color,
-    sections, earnedPoints, maxPoints, foundCount, totalChecks,
-  } = result;
+  const { normalized, grade, label, color, sections, earnedPoints, maxPoints, foundCount, totalChecks } = result;
 
-  const c  = COLORS[color] || WHITE;
+  const c = COLORS[color] || WHITE;
   const bg = BG_COLORS[color] || '';
   const line = '─'.repeat(50);
 
@@ -242,9 +239,9 @@ export function report(result, findings, opts = {}) {
 // ───────────────────────────────────────────────────────────────────────
 
 function renderRecommendations(findings, opts) {
-  const critical  = findings.filter(f => !f.found && f.weight >= 10);
-  const important = findings.filter(f => !f.found && f.weight >= 5 && f.weight < 10);
-  const nice      = findings.filter(f => !f.found && f.weight >= 3 && f.weight < 5);
+  const critical = findings.filter((f) => !f.found && f.weight >= 10);
+  const important = findings.filter((f) => !f.found && f.weight >= 5 && f.weight < 10);
+  const nice = findings.filter((f) => !f.found && f.weight >= 3 && f.weight < 5);
 
   if (critical.length === 0 && important.length === 0) return;
 
@@ -291,7 +288,7 @@ export function reportJson(result, findings) {
     points: { earned: result.earnedPoints, max: result.maxPoints },
     checks: { passed: result.foundCount, total: result.totalChecks },
     sections: {},
-    findings: findings.map(f => ({
+    findings: findings.map((f) => ({
       id: f.id,
       label: f.label,
       section: f.section,

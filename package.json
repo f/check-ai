@@ -5,6 +5,13 @@
   "bin": {
     "check-ai": "./bin/cli.mjs"
   },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
   "type": "module",
   "files": [
     "bin",
@@ -31,5 +38,9 @@
   "repository": {
     "type": "git",
     "url": ""
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "prettier": "^3.8.1"
   }
 }

@@ -17,12 +17,12 @@ const flags = {
 let targetPath = '.';
 
 for (const arg of args) {
-  if (arg === '--json')                          flags.json = true;
-  else if (arg === '--verbose' || arg === '-v')  flags.verbose = true;
-  else if (arg === '--help'   || arg === '-h')   flags.help = true;
-  else if (arg === '--version')                  flags.version = true;
+  if (arg === '--json') flags.json = true;
+  else if (arg === '--verbose' || arg === '-v') flags.verbose = true;
+  else if (arg === '--help' || arg === '-h') flags.help = true;
+  else if (arg === '--version') flags.version = true;
   else if (arg === '--no-interactive' || arg === '--ci') flags.noInteractive = true;
-  else if (!arg.startsWith('-'))                 targetPath = arg;
+  else if (!arg.startsWith('-')) targetPath = arg;
 }
 
 // Auto-detect: disable interactive when piped or in CI
@@ -81,17 +81,21 @@ if (interactive) {
 }
 
 // Progress callback for interactive mode
-const onProgress = interactive ? (ev) => {
-  if (ev.phase === 'deep-scan') {
-    spinner.update('Deep scanning file tree …');
-  } else if (ev.phase === 'deep-scan-done') {
-    spinner.update(`Scanned ${ev.filesScanned.toLocaleString()} files in ${ev.dirsScanned.toLocaleString()} dirs — analyzing …`);
-  } else if (ev.phase === 'checking') {
-    spinner.update(`Checking ${ev.current}/${ev.total}: ${ev.label}`);
-  } else if (ev.phase === 'done') {
-    spinner.stop(`Scanned ${repoName} — ${ev.total} checks complete`);
-  }
-} : undefined;
+const onProgress = interactive
+  ? (ev) => {
+      if (ev.phase === 'deep-scan') {
+        spinner.update('Deep scanning file tree …');
+      } else if (ev.phase === 'deep-scan-done') {
+        spinner.update(
+          `Scanned ${ev.filesScanned.toLocaleString()} files in ${ev.dirsScanned.toLocaleString()} dirs — analyzing …`,
+        );
+      } else if (ev.phase === 'checking') {
+        spinner.update(`Checking ${ev.current}/${ev.total}: ${ev.label}`);
+      } else if (ev.phase === 'done') {
+        spinner.stop(`Scanned ${repoName} — ${ev.total} checks complete`);
+      }
+    }
+  : undefined;
 
 const findings = await scan(targetDir, onProgress);
 const result = score(findings);
