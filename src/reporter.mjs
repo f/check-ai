@@ -310,3 +310,136 @@ export function reportJson(result, findings) {
 
   console.log(JSON.stringify(output, null, 2));
 }
+
+
+// ───────────────────────────────────────────────────────────────────────
+//  Per-Tool Report
+// ───────────────────────────────────────────────────────────────────────
+
+function toolBar(percentage, width = 16) {
+  const filled = Math.round((percentage / 100) * width);
+  const empty = width - filled;
+  const color = percentage >= 70 ? GREEN : percentage >= 40 ? YELLOW : RED;
+  return `${color}${'█'.repeat(filled)}${DIM}${'░'.repeat(empty)}${RESET}`;
+}
+
+export function reportTools(toolResults, opts = {}) {
+  const { toolScores } = toolResults;
+  const tools = Object.values(toolScores);
+
+  if (tools.length === 0) {
+    console.log(`  ${DIM}No configured tools detected.${RESET}`);
+    console.log('');
+    return;
+  }
+
+  console.log(`  ${BOLD}Per-Tool Readiness${RESET}`);
+  console.log('');
+
+  // Sort by percentage descending
+  tools.sort((a, b) => b.percentage - a.percentage);
+
+  for (const tool of tools) {
+    const pctColor = tool.percentage >= 70 ? GREEN : tool.percentage >= 40 ? YELLOW : RED;
+    const icon = tool.icon || '[DONE]';
+    
+    console.log(
+      `  ${icon} ${BOLD}${tool.name.padEnd(14)}${RESET} ${toolBar(tool.percentage)} ` +
+      `${pctColor}${tool.percentage.toString().padStart(3)}%${RESET} ` +
+      `${DIM}(${tool.earned}/${tool.max})${RESET}`
+    );
+
+    // Show required check status if verbose
+    if (opts.verbose && tool.required.total > 0) {
+      for (const check of tool.required.checks) {
+        const status = check.found ? `${GREEN}${RESET}` : `${RED}${RESET}`;
+        console.log(`       ${status} ${DIM}${check.label} (required)${RESET}`);
+      }
+    }
+  }
+
+  console.log('');
+}
+
+export async function reportToolsInteractive(toolResults, opts = {}) {
+  const { toolScores } = toolResults;
+  const tools = Object.values(toolScores);
+
+  if (tools.length === 0) {
+    console.log(`  ${DIM}No configured tools detected.${RESET}`);
+    console.log('');
+    return;
+  }
+
+  console.log(`  ${BOLD}Per-Tool Readiness${RESET}`);
+  console.log('');
+
+  // Sort by percentage descending
+  tools.sort((a, b) => b.percentage - a.percentage);
+
+  for (const tool of tools) {
+    const pctColor = tool.percentage >= 70 ? GREEN : tool.percentage >= 40 ? YELLOW : RED;
+    const icon = tool.icon || '[DONE]';
+
+    // Animate bar fill
+    w(`  ${icon} ${BOLD}${tool.name.padEnd(14)}${RESET} `);
+    await animateToolBar(tool.percentage, 16, 8);
+    w(` ${pctColor}${tool.percentage.toString().padStart(3)}%${RESET} `);
+    w(`${DIM}(${tool.earned}/${tool.max})${RESET}\n`);
+
+    // Show required check status if verbose
+    if (opts.verbose && tool.required.total > 0) {
+      for (const check of tool.required.checks) {
+        await sleep(20);
+        const status = check.found ? `${GREEN}${RESET}` : `${RED}${RESET}`;
+        console.log(`       ${status} ${DIM}${check.label} (required)${RESET}`);
+      }
+    }
+
+    await sleep(50);
+  }
+
+  console.log('');
+}
+
+async function animateToolBar(percentage, width = 16, stepMs = 8) {
+  const target = Math.round((percentage / 100) * width);
+  const color = percentage >= 70 ? GREEN : percentage >= 40 ? YELLOW : RED;
+
+  for (let i = 0; i <= target; i++) {
+    const empty = width - i;
+    w(`\r${color}${'█'.repeat(i)}${DIM}${'░'.repeat(empty)}${RESET}`);
+    await sleep(stepMs);
+  }
+  // Final position without \r
+  const final = target;
+  const empty = width - final;
+  w(`${color}${'█'.repeat(final)}${DIM}${'░'.repeat(empty)}${RESET}`);
+}
+
+export function reportToolsJson(toolResults) {
+  const output = {
+    configuredTools: toolResults.configuredTools,
+    tools: {},
+  };
+
+  for (const [key, tool] of Object.entries(toolResults.toolScores)) {
+    output.tools[key] = {
+      name: tool.name,
+      percentage: tool.percentage,
+      score: tool.normalized,
+      grade: tool.grade,
+      points: { earned: tool.earned, max: tool.max },
+      required: {
+        passed: tool.required.passed,
+        total: tool.required.total,
+      },
+      valuable: {
+        passed: tool.valuable.passed,
+        total: tool.valuable.total,
+      },
+    };
+  }
+
+  console.log(JSON.stringify(output, null, 2));
+}
