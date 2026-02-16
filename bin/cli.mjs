@@ -13,6 +13,7 @@ const flags = {
   help: false,
   version: false,
   noInteractive: false,
+  badge: false,
 };
 let targetPath = '.';
 
@@ -22,12 +23,13 @@ for (const arg of args) {
   else if (arg === '--help' || arg === '-h') flags.help = true;
   else if (arg === '--version') flags.version = true;
   else if (arg === '--no-interactive' || arg === '--ci') flags.noInteractive = true;
+  else if (arg === 'badge') flags.badge = true;
   else if (!arg.startsWith('-')) targetPath = arg;
 }
 
 // Auto-detect: disable interactive when piped or in CI
 const isTTY = process.stdout.isTTY && !process.env.CI;
-const interactive = isTTY && !flags.json && !flags.noInteractive;
+const interactive = isTTY && !flags.json && !flags.noInteractive && !flags.badge;
 
 // ── Help ──────────────────────────────────────────────────
 if (flags.help) {
@@ -36,6 +38,9 @@ if (flags.help) {
 
   Usage
     $ check-ai [directory] [options]
+
+  Commands
+    badge              Generate a shields.io badge in Markdown
 
   Options
     --json             Output results as JSON
@@ -50,6 +55,7 @@ if (flags.help) {
     $ check-ai ./my-project     # audit a specific repo
     $ check-ai --json           # machine-readable output
     $ check-ai . --verbose      # include nice-to-have suggestions
+    $ check-ai badge            # output a Markdown badge
 `);
   process.exit(0);
 }
@@ -75,7 +81,7 @@ if (interactive) {
   console.log('');
   spinner = createSpinner();
   spinner.start(`Auditing ${repoName} …`);
-} else if (!flags.json) {
+} else if (!flags.json && !flags.badge) {
   console.log('');
   console.log(`  🔍 Auditing ${repoName} …`);
 }
@@ -100,7 +106,13 @@ const onProgress = interactive
 const findings = await scan(targetDir, onProgress);
 const result = score(findings);
 
-if (flags.json) {
+if (flags.badge) {
+  const badgeColor = result.color === 'green' ? 'brightgreen' : result.color === 'yellow' ? 'yellow' : 'red';
+  const label = 'AI Ready';
+  const message = `${result.grade} ${result.normalized}/10`;
+  const url = `https://img.shields.io/badge/${encodeURIComponent(label)}-${encodeURIComponent(message)}-${badgeColor}`;
+  console.log(`[![AI Ready](${url})](https://github.com/f/check-ai)`);
+} else if (flags.json) {
   reportJson(result, findings);
 } else if (interactive) {
   await reportInteractive(result, findings, { verbose: flags.verbose });
