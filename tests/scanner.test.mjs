@@ -68,9 +68,16 @@ describe('scan() — empty repo', () => {
   it('should have no found checks in an empty repo (excluding git-history checks)', () => {
     // Git commit checks may inherit parent repo history in fixtures
     const gitChecks = new Set(['commit-messages', 'conventional-commits']);
-    const nonGit = findings.filter(f => !gitChecks.has(f.id));
-    const foundCount = nonGit.filter(f => f.found).length;
-    assert.equal(foundCount, 0, `Expected 0 found, got ${foundCount}: ${nonGit.filter(f => f.found).map(f => f.id).join(', ')}`);
+    const nonGit = findings.filter((f) => !gitChecks.has(f.id));
+    const foundCount = nonGit.filter((f) => f.found).length;
+    assert.equal(
+      foundCount,
+      0,
+      `Expected 0 found, got ${foundCount}: ${nonGit
+        .filter((f) => f.found)
+        .map((f) => f.id)
+        .join(', ')}`,
+    );
   });
 
   it('should include all standard check fields', () => {

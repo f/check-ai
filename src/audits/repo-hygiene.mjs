@@ -249,7 +249,10 @@ function getRecentCommits(rootDir) {
       timeout: 5000,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    return output.trim().split('\n').filter((l) => l.trim().length > 0);
+    return output
+      .trim()
+      .split('\n')
+      .filter((l) => l.trim().length > 0);
   } catch {
     return [];
   }
