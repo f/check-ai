@@ -35,6 +35,7 @@ node bin/cli.mjs badge
 ### Testing
 
 The test suite uses Node.js native test runner (`node:test`). Tests are in `tests/*.test.mjs`:
+
 - `audits.test.mjs` - Tests for individual audit modules
 - `cli.test.mjs` - CLI argument parsing and integration tests
 - `scanner.test.mjs` - Scanner logic and deep scan tests
@@ -49,18 +50,21 @@ Test fixtures are dynamically created in `tests/.fixtures/` during test runs.
 **`bin/cli.mjs`** - Entry point. Handles argument parsing, determines interactive vs static output mode, coordinates scan → score → report flow. Exits with code 1 if score < 3 (for CI integration).
 
 **`src/scanner.mjs`** - The scanning engine:
+
 - Dynamically loads all audit modules from `src/audits/*.mjs`
 - Performs a single-pass deep tree walk (up to 6 levels) to collect files matching deep-scan patterns
 - Evaluates each check: file/dir existence, deep-scan matches, or custom handlers
 - Returns raw findings array with `found`, `matches`, `detail` for each check
 
 **`src/scorer.mjs`** - Converts findings into scores:
+
 - Sums `weight` values from passed checks
 - Normalizes to 0-10 scale
 - Assigns letter grade (A+, A, B, C, D, F) based on score thresholds
 - Groups findings by section in a fixed order
 
 **`src/reporter.mjs`** - Output formatting:
+
 - `reportInteractive()` - Animated TTY output with spinners, staggered reveals, progress bars
 - `report()` - Static text output for pipes/CI
 - `reportJson()` - Machine-readable JSON output
@@ -69,6 +73,7 @@ Test fixtures are dynamically created in `tests/.fixtures/` during test runs.
 ### Audit System
 
 All checks are defined in modular files under `src/audits/`:
+
 - `agent-configs.mjs` - AI tool configurations (Cursor, Windsurf, Claude, Copilot, etc.)
 - `grounding-docs.mjs` - Documentation files (README, ARCHITECTURE, CONTRIBUTING, llms.txt, etc.)
 - `repo-hygiene.mjs` - Standard repo files (gitignore, CI configs, linters, formatters, etc.)
@@ -79,6 +84,7 @@ All checks are defined in modular files under `src/audits/`:
 - `ai-deps.mjs` - AI SDK dependencies in package.json/requirements.txt
 
 Each audit module exports:
+
 - `section` - Section name (e.g., "Agent Configs")
 - `checks[]` - Array of check definitions with:
   - `id`, `label`, `section`, `weight`, `description`
