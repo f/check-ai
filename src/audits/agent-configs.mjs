@@ -59,6 +59,7 @@ export const checks = [
     type: 'custom',
     custom: 'has-any-agent-tool',
     description: 'Repo has config for at least one AI coding tool (Cursor, Windsurf, Claude, Copilot, etc.)',
+    hint: 'touch AGENTS.md  # universal agent instructions',
   },
 
   // Universal
@@ -70,6 +71,7 @@ export const checks = [
     paths: ['AGENTS.md', 'agents.md'],
     type: 'file',
     description: 'Universal agent instructions — the cross-tool standard',
+    hint: 'touch AGENTS.md',
   },
   {
     id: 'agents-md-quality',
@@ -119,6 +121,7 @@ export const checks = [
     paths: ['CLAUDE.md', 'claude.md'],
     type: 'file',
     description: 'Claude Code project instructions',
+    hint: 'touch CLAUDE.md',
   },
   {
     id: 'claude-dir',

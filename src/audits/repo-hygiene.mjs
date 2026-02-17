@@ -33,6 +33,7 @@ export const checks = [
     paths: ['.env.example', '.env.sample', '.env.template'],
     type: 'file',
     description: 'Documents required env vars without exposing secrets',
+    hint: 'cp .env .env.example  # strip secrets',
   },
   {
     id: 'editorconfig',
@@ -42,6 +43,7 @@ export const checks = [
     paths: ['.editorconfig'],
     type: 'file',
     description: 'Consistent editor settings across contributors and agents',
+    hint: 'touch .editorconfig',
   },
   {
     id: 'linter',
@@ -156,6 +158,7 @@ export const checks = [
     paths: ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md'],
     type: 'file',
     description: 'License file clarifies usage rights for contributors and agents',
+    hint: 'touch LICENSE',
   },
   {
     id: 'dockerfile',
@@ -201,6 +204,7 @@ export const checks = [
     ],
     type: 'file',
     description: 'Pinned runtime versions ensure consistent agent environments',
+    hint: 'node -v > .nvmrc',
   },
 ];
 

@@ -13,6 +13,7 @@ export const checks = [
     paths: ['.mcp.json', 'mcp.json'],
     type: 'file',
     description: 'MCP server configuration for tool integrations',
+    hint: 'echo \'{"mcpServers":{}}\' > .mcp.json',
   },
   {
     id: 'mcp-json-quality',

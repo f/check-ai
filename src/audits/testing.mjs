@@ -25,6 +25,7 @@ export const checks = [
     ],
     type: 'dir',
     description: 'Tests catch agent-introduced regressions',
+    hint: 'mkdir -p tests',
   },
   {
     id: 'test-config',

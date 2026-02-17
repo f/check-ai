@@ -38,6 +38,8 @@ const SECTION_ICONS = {
   'AI Deps': '📦',
 };
 
+const SEC_NAME_WIDTH = Math.max(...Object.keys(SECTION_ICONS).map((n) => n.length));
+
 // ───────────────────────────────────────────────────────────────────────
 //  Utilities
 // ───────────────────────────────────────────────────────────────────────
@@ -103,14 +105,14 @@ export function createSpinner() {
 //  Animated bar fill
 // ───────────────────────────────────────────────────────────────────────
 
-async function animateBar(earned, max, width = 15, stepMs = 12) {
+async function animateBar(earned, max, width = 15, stepMs = 12, prefix = '') {
   const ratio = max > 0 ? earned / max : 0;
   const target = Math.round(ratio * width);
   const color = ratio >= 0.7 ? GREEN : ratio >= 0.4 ? YELLOW : RED;
 
   for (let i = 0; i <= target; i++) {
     const empty = width - i;
-    w(`\r${color}${'█'.repeat(i)}${DIM}${'░'.repeat(empty)}${RESET}`);
+    w(`\r${prefix}${color}${'█'.repeat(i)}${DIM}${'░'.repeat(empty)}${RESET}`);
     await sleep(stepMs);
   }
 }
@@ -125,7 +127,8 @@ function renderSectionHeader(secName, sec) {
   const ratio = sec.max > 0 ? sec.earned / sec.max : 0;
   const secColor = ratio >= 0.7 ? GREEN : ratio >= 0.4 ? YELLOW : RED;
 
-  return `  ${icon} ${BOLD}${secName}${RESET}  ${bar(sec.earned, sec.max, 15)}  ${secColor}${secPct}${RESET} ${DIM}(${sec.earned}/${sec.max})${RESET}`;
+  const padded = secName.padEnd(SEC_NAME_WIDTH);
+  return `  ${icon} ${BOLD}${padded}${RESET}  ${bar(sec.earned, sec.max, 15)}  ${secColor}${secPct.padStart(4)}${RESET} ${DIM}(${sec.earned}/${sec.max})${RESET}`;
 }
 
 function renderItem(item) {
@@ -142,33 +145,151 @@ function renderItem(item) {
 }
 
 // ───────────────────────────────────────────────────────────────────────
-//  Interactive report — animated section-by-section reveal
+//  Interactive report — compact sub-scrolling dashboard
 // ───────────────────────────────────────────────────────────────────────
 
+const MOVE_UP = (n) => (n > 0 ? `\x1b[${n}A` : '');
+const MOVE_DOWN = (n) => (n > 0 ? `\x1b[${n}B` : '');
+
+const MAX_VISIBLE_ITEMS = 5;
+
+function renderSectionHeaderCompact(secName, sec, active = false, done = false) {
+  const icon = SECTION_ICONS[secName] || '📦';
+  const secPct = pct(sec.earned, sec.max);
+  const ratio = sec.max > 0 ? sec.earned / sec.max : 0;
+  const secColor = ratio >= 0.7 ? GREEN : ratio >= 0.4 ? YELLOW : RED;
+  const arrow = active ? `${CYAN}▸${RESET} ` : done ? `${GREEN}✓${RESET} ` : `${DIM}○${RESET} `;
+  const nameStyle = active ? `${BOLD}${WHITE}` : done ? `${BOLD}` : `${DIM}`;
+  const padded = secName.padEnd(SEC_NAME_WIDTH);
+  return `  ${arrow}${icon} ${nameStyle}${padded}${RESET}  ${bar(sec.earned, sec.max, 12)}  ${secColor}${secPct.padStart(4)}${RESET} ${DIM}(${sec.earned}/${sec.max})${RESET}`;
+}
+
+function renderItemCompact(item) {
+  if (item.found) {
+    const detail = item.detail ? ` ${GRAY}${item.detail}${RESET}` : '';
+    const matchPath = item.matchedPath ? ` ${GRAY}→ ${item.matchedPath}${RESET}` : '';
+    const matches =
+      item.matches && item.matches.length > 0
+        ? ` ${GRAY}→ ${item.matches.slice(0, 3).join(', ')}${item.matches.length > 3 ? ` +${item.matches.length - 3} more` : ''}${RESET}`
+        : '';
+    return `       ${GREEN}✔${RESET} ${item.label}${detail}${matchPath}${matches}`;
+  }
+  return `       ${DIM}✘ ${item.label}${RESET}`;
+}
+
+/**
+ * Draws the full compact dashboard frame.
+ * Returns the number of lines written.
+ */
+function drawDashboard(secNames, sections, activeIdx, scrollState) {
+  const lines = [];
+
+  for (let i = 0; i < secNames.length; i++) {
+    const secName = secNames[i];
+    const sec = sections[secName];
+    if (sec.items.length === 0) continue;
+
+    const isActive = i === activeIdx;
+    const isDone = i < activeIdx;
+    lines.push(renderSectionHeaderCompact(secName, sec, isActive, isDone));
+
+    // Show scrolling items only for the active section
+    if (isActive && scrollState.items.length > 0) {
+      const items = scrollState.items;
+      const total = sec.items.length;
+      const visible = items.slice(-MAX_VISIBLE_ITEMS);
+
+      // Show scroll-up indicator if items are hidden above
+      if (items.length > MAX_VISIBLE_ITEMS) {
+        lines.push(`       ${DIM}↑ ${items.length - MAX_VISIBLE_ITEMS} more above${RESET}`);
+      }
+
+      for (const item of visible) {
+        lines.push(renderItemCompact(item));
+      }
+
+      // Show remaining count below
+      const remaining = total - items.length;
+      if (remaining > 0) {
+        lines.push(`       ${DIM}… ${remaining} remaining${RESET}`);
+      }
+    }
+  }
+
+  return lines;
+}
+
 export async function reportInteractive(result, findings, opts = {}) {
-  const { normalized, grade, label, color, emoji, sections, earnedPoints, maxPoints, foundCount, totalChecks } = result;
+  const { normalized, grade, label, color, sections, earnedPoints, maxPoints, foundCount, totalChecks } = result;
 
   const c = COLORS[color] || WHITE;
   const bg = BG_COLORS[color] || '';
   const line = '─'.repeat(50);
 
+  w(HIDE_CURSOR);
   console.log('');
 
-  // ── Section-by-section reveal ───────────────────────────
-  const secNames = Object.keys(sections);
-  for (const secName of secNames) {
+  const secNames = Object.keys(sections).filter((n) => sections[n].items.length > 0);
+  let prevLineCount = 0;
+
+  // ── Animate section-by-section ────────────────────────
+  for (let activeIdx = 0; activeIdx < secNames.length; activeIdx++) {
+    const secName = secNames[activeIdx];
     const sec = sections[secName];
-    if (sec.items.length === 0) continue;
+    const scrollState = { items: [] };
 
-    console.log(renderSectionHeader(secName, sec));
-
-    for (const item of sec.items) {
-      await sleep(25);
-      console.log(renderItem(item));
+    // Draw initial state with active section highlighted
+    {
+      const frame = drawDashboard(secNames, sections, activeIdx, scrollState);
+      // Erase previous frame
+      if (prevLineCount > 0) {
+        w(MOVE_UP(prevLineCount));
+        for (let j = 0; j < prevLineCount; j++) w(`${CLEAR_LINE}\n`);
+        w(MOVE_UP(prevLineCount));
+      }
+      for (const l of frame) w(`${CLEAR_LINE}${l}\n`);
+      prevLineCount = frame.length;
     }
-    console.log('');
-    await sleep(60);
+
+    await sleep(80);
+
+    // Reveal items one by one with scrolling
+    for (const item of sec.items) {
+      scrollState.items.push(item);
+
+      const frame = drawDashboard(secNames, sections, activeIdx, scrollState);
+      if (prevLineCount > 0) {
+        w(MOVE_UP(prevLineCount));
+        for (let j = 0; j < prevLineCount; j++) w(`${CLEAR_LINE}\n`);
+        w(MOVE_UP(prevLineCount));
+      }
+      for (const l of frame) w(`${CLEAR_LINE}${l}\n`);
+      prevLineCount = frame.length;
+
+      await sleep(20);
+    }
+
+    await sleep(100);
   }
+
+  // ── Final expanded view (all done) — shows every check ──
+  {
+    if (prevLineCount > 0) {
+      w(MOVE_UP(prevLineCount));
+      for (let j = 0; j < prevLineCount; j++) w(`${CLEAR_LINE}\n`);
+      w(MOVE_UP(prevLineCount));
+    }
+    for (const secName of secNames) {
+      const sec = sections[secName];
+      w(`${CLEAR_LINE}${renderSectionHeader(secName, sec)}\n`);
+      for (const item of sec.items) {
+        w(`${CLEAR_LINE}${renderItem(item)}\n`);
+      }
+      w(`${CLEAR_LINE}\n`);
+    }
+  }
+
+  w(SHOW_CURSOR);
 
   // ── Recommendations ─────────────────────────────────────
   renderRecommendations(findings, opts);
@@ -186,8 +307,7 @@ export async function reportInteractive(result, findings, opts = {}) {
   console.log('');
   console.log(`   ${bg}${BOLD} ${grade} ${RESET}  ${c}${BOLD}${label}${RESET}`);
   console.log('');
-  w(`   `);
-  await animateBar(normalized, 10, 40, 15);
+  await animateBar(normalized, 10, 40, 15, '   ');
   w(`  ${BOLD}${normalized}${RESET}${DIM}/10${RESET}\n`);
   console.log(`   ${DIM}${foundCount} of ${totalChecks} checks passed · ${earnedPoints}/${maxPoints} pts${RESET}`);
   console.log('');
@@ -242,8 +362,9 @@ function renderRecommendations(findings, opts) {
   const critical = findings.filter((f) => !f.found && f.weight >= 10);
   const important = findings.filter((f) => !f.found && f.weight >= 5 && f.weight < 10);
   const nice = findings.filter((f) => !f.found && f.weight >= 3 && f.weight < 5);
+  const minor = findings.filter((f) => !f.found && f.weight >= 1 && f.weight < 3);
 
-  if (critical.length === 0 && important.length === 0) return;
+  if (critical.length === 0 && important.length === 0 && nice.length === 0) return;
 
   const line = '─'.repeat(50);
   console.log(`  ${DIM}${line}${RESET}`);
@@ -253,8 +374,9 @@ function renderRecommendations(findings, opts) {
   if (critical.length > 0) {
     console.log(`  ${RED}${BOLD}  Critical (high impact)${RESET}`);
     for (const m of critical) {
-      console.log(`    ${RED}●${RESET} ${BOLD}${m.label}${RESET}`);
+      console.log(`    ${RED}●${RESET} ${BOLD}${m.label}${RESET} ${DIM}[${m.section}]${RESET}`);
       console.log(`      ${DIM}${m.description}${RESET}`);
+      if (m.hint) console.log(`      ${CYAN}$ ${m.hint}${RESET}`);
     }
     console.log('');
   }
@@ -263,14 +385,24 @@ function renderRecommendations(findings, opts) {
     console.log(`  ${YELLOW}${BOLD}  Important${RESET}`);
     for (const m of important) {
       console.log(`    ${YELLOW}●${RESET} ${BOLD}${m.label}${RESET} ${DIM}— ${m.description}${RESET}`);
+      if (m.hint) console.log(`      ${CYAN}$ ${m.hint}${RESET}`);
     }
     console.log('');
   }
 
-  if (nice.length > 0 && opts.verbose) {
+  if (nice.length > 0) {
     console.log(`  ${BLUE}${BOLD}  Nice to have${RESET}`);
     for (const m of nice) {
       console.log(`    ${BLUE}●${RESET} ${m.label} ${DIM}— ${m.description}${RESET}`);
+      if (m.hint) console.log(`      ${CYAN}$ ${m.hint}${RESET}`);
+    }
+    console.log('');
+  }
+
+  if (minor.length > 0 && opts.verbose) {
+    console.log(`  ${DIM}${BOLD}  Other suggestions${RESET}`);
+    for (const m of minor) {
+      console.log(`    ${DIM}○ ${m.label} — ${m.description}${RESET}`);
     }
     console.log('');
   }

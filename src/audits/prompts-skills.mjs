@@ -27,6 +27,7 @@ export const checks = [
     type: 'custom',
     custom: 'has-any-prompt-or-skill',
     description: 'Repo has at least one prompt template, skill definition, or command',
+    hint: 'mkdir -p prompts  # or add a SKILL.md',
   },
 
   {

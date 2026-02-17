@@ -34,6 +34,7 @@ export const checks = [
     type: 'custom',
     custom: 'has-any-ai-context',
     description: 'Repo has at least one AI ignore or context control file',
+    hint: 'touch .gitattributes  # or .cursorignore, .copilotignore',
   },
 
   {
@@ -117,6 +118,7 @@ export const checks = [
     paths: ['.gitattributes'],
     type: 'file',
     description: 'Language detection hints help AI tools classify files correctly',
+    hint: 'touch .gitattributes',
   },
 ];
 

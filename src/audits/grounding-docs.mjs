@@ -48,6 +48,7 @@ export const checks = [
     ],
     type: 'file',
     description: 'High-level architecture reference for agents tackling large tasks',
+    hint: 'touch ARCHITECTURE.md',
   },
   {
     id: 'tech-stack-doc',
@@ -57,6 +58,7 @@ export const checks = [
     paths: ['tech-stack.md', 'TECH-STACK.md', 'docs/tech-stack.md', '.ai/docs/tech-stack.md'],
     type: 'file',
     description: 'Prevents agents from introducing unwanted frameworks',
+    hint: 'touch TECHSTACK.md',
   },
   {
     id: 'ai-requirements',
@@ -75,6 +77,7 @@ export const checks = [
     paths: ['llms.txt', 'llms-full.txt'],
     type: 'file',
     description: 'LLM-friendly project description (llms.txt standard)',
+    hint: 'touch llms.txt  # see llmstxt.org',
   },
   {
     id: 'changelog',
@@ -84,6 +87,7 @@ export const checks = [
     paths: ['CHANGELOG.md', 'changelog.md', 'CHANGES.md', 'HISTORY.md'],
     type: 'file',
     description: 'Change history helps agents understand recent project evolution',
+    hint: 'touch CHANGELOG.md',
   },
   {
     id: 'conventions-doc',
@@ -101,6 +105,7 @@ export const checks = [
     ],
     type: 'file',
     description: 'Coding conventions and development setup guide for agents',
+    hint: 'touch CONVENTIONS.md',
   },
   {
     id: 'api-docs',
@@ -119,6 +124,7 @@ export const checks = [
     paths: ['docs', 'doc'],
     type: 'dir',
     description: 'Organized documentation directory for project knowledge',
+    hint: 'mkdir -p docs',
   },
 ];
 
