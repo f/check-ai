@@ -157,6 +157,21 @@ export function analyze(rootDir, ctx) {
       }
     }
 
+    // Check for self-contained AI tools (projects that ARE AI tools)
+    // These implement their own AI integration rather than using external SDKs
+    const selfContainedSignals = [
+      '.clio/instructions.md',     // CLIO - Perl AI assistant
+      'lib/CLIO',                   // CLIO source code
+    ];
+    
+    for (const signal of selfContainedSignals) {
+      const fullPath = ctx.join(rootDir, signal);
+      if (ctx.existsSync(fullPath)) {
+        found.push('native-ai-tool');
+        break;
+      }
+    }
+
     return {
       found: found.length > 0,
       matches: found,

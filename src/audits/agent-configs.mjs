@@ -46,6 +46,9 @@ const TOOL_SIGNALS = [
   '.augment-guidelines.md',
   '.qodo',
   '.kiro',
+  // CLIO - Perl-based AI coding assistant
+  '.clio',
+  '.clio/instructions.md',
 ];
 
 export const checks = [
@@ -412,6 +415,53 @@ export const checks = [
     paths: ['.qodo'],
     type: 'any',
     description: 'Qodo AI code quality configuration',
+  },
+
+  // CLIO (Command Line Intelligence Orchestrator)
+  {
+    id: 'clio-dir',
+    label: '.clio/',
+    section,
+    weight: 0,
+    paths: ['.clio'],
+    type: 'dir',
+    description: 'CLIO AI assistant configuration directory',
+  },
+  {
+    id: 'clio-instructions',
+    label: '.clio/instructions.md',
+    section,
+    weight: 0,
+    paths: ['.clio/instructions.md'],
+    type: 'file',
+    description: 'CLIO project-specific agent instructions',
+  },
+  {
+    id: 'clio-ltm',
+    label: '.clio/ltm.json',
+    section,
+    weight: 0,
+    paths: ['.clio/ltm.json'],
+    type: 'file',
+    description: 'CLIO long-term memory (discoveries, solutions, patterns)',
+  },
+  {
+    id: 'clio-memory',
+    label: '.clio/memory/',
+    section,
+    weight: 0,
+    paths: ['.clio/memory'],
+    type: 'dir',
+    description: 'CLIO session memory storage',
+  },
+  {
+    id: 'clio-sessions',
+    label: '.clio/sessions/',
+    section,
+    weight: 0,
+    paths: ['.clio/sessions'],
+    type: 'dir',
+    description: 'CLIO session state persistence',
   },
 ];
 
