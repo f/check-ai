@@ -1,15 +1,46 @@
 /**
  * 🔒 AI Context — files that control what AI agents can and cannot see.
+ *
+ * Scoring philosophy: having ANY ONE context/ignore file earns a big bonus.
+ * People use Cursor OR Copilot OR Aider — not all at once.
  */
+
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 export const section = 'AI Context';
 
+const CONTEXT_SIGNALS = [
+  '.cursorignore',
+  '.cursorindexingignore',
+  '.aiignore',
+  '.aiexclude',
+  '.coderabbit.yaml',
+  '.coderabbit.yml',
+  '.copilotignore',
+  '.codeiumignore',
+  '.aiderignore',
+  '.gitattributes',
+];
+
 export const checks = [
+  // Bonus: having ANY context/ignore file is the big signal.
+  {
+    id: 'has-any-ai-context',
+    label: 'At least one AI context file',
+    section,
+    weight: 8,
+    paths: [],
+    type: 'custom',
+    custom: 'has-any-ai-context',
+    description: 'Repo has at least one AI ignore or context control file',
+  },
+
   {
     id: 'cursorignore',
     label: '.cursorignore',
     section,
-    weight: 3,
+    weight: 0,
     paths: ['.cursorignore'],
     type: 'file',
     description: 'Tells Cursor which files to exclude from indexing',
@@ -18,7 +49,7 @@ export const checks = [
     id: 'cursorindexingignore',
     label: '.cursorindexingignore',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.cursorindexingignore'],
     type: 'file',
     description: 'Cursor indexing exclusion list',
@@ -27,7 +58,7 @@ export const checks = [
     id: 'aiignore',
     label: '.aiignore / .aiexclude',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.aiignore', '.aiexclude'],
     type: 'file',
     description: 'Generic AI exclusion file',
@@ -36,7 +67,7 @@ export const checks = [
     id: 'coderabbit',
     label: '.coderabbit.yaml',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.coderabbit.yaml', '.coderabbit.yml'],
     type: 'file',
     description: 'CodeRabbit AI code review configuration',
@@ -45,7 +76,7 @@ export const checks = [
     id: 'copilotignore',
     label: '.copilotignore',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.copilotignore'],
     type: 'file',
     description: 'GitHub Copilot file exclusion list',
@@ -54,7 +85,7 @@ export const checks = [
     id: 'codeiumignore',
     label: '.codeiumignore',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.codeiumignore'],
     type: 'file',
     description: 'Windsurf/Codeium global ignore file',
@@ -63,7 +94,7 @@ export const checks = [
     id: 'vscode-instructions',
     label: '.instructions.md files',
     section,
-    weight: 2,
+    weight: 0,
     paths: [],
     type: 'deep-scan',
     deepPattern: '.instructions.md',
@@ -73,7 +104,7 @@ export const checks = [
     id: 'aiderignore',
     label: '.aiderignore',
     section,
-    weight: 2,
+    weight: 0,
     paths: ['.aiderignore'],
     type: 'file',
     description: 'Aider file exclusion list for context control',
@@ -82,9 +113,26 @@ export const checks = [
     id: 'gitattributes',
     label: '.gitattributes',
     section,
-    weight: 1,
+    weight: 0,
     paths: ['.gitattributes'],
     type: 'file',
     description: 'Language detection hints help AI tools classify files correctly',
   },
 ];
+
+/**
+ * Custom check handlers for this audit.
+ */
+export function analyze(rootDir) {
+  const results = {};
+
+  results['has-any-ai-context'] = (() => {
+    const matched = CONTEXT_SIGNALS.filter((p) => existsSync(join(rootDir, p)));
+    return {
+      found: matched.length > 0,
+      detail: matched.length > 0 ? `${matched.length} file(s): ${matched.slice(0, 5).join(', ')}` : null,
+    };
+  })();
+
+  return results;
+}

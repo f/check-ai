@@ -160,7 +160,18 @@ export async function scan(rootDir, onProgress) {
   const audits = await loadAudits();
   const allChecks = audits.flatMap((a) => a.checks);
 
+  // ── Phase 1: Deep tree scan (single pass) ───────────────
+  emit({ phase: 'deep-scan', message: 'Deep scanning file tree…' });
+
+  const deepPatterns = allChecks.filter((c) => c.type === 'deep-scan').map((c) => c.deepPattern);
+
+  const { results: deepResults, filesScanned, dirsScanned } = deepScan(rootDir, deepPatterns);
+
+  emit({ phase: 'deep-scan-done', filesScanned, dirsScanned });
+
   // Build a map of custom check handlers from all audits
+  // (runs after deep scan so analyze() can access deep scan results)
+  ctx.deepScanResults = deepResults;
   const customHandlers = {};
   for (const audit of audits) {
     if (audit.analyze) {
@@ -170,15 +181,6 @@ export async function scan(rootDir, onProgress) {
       }
     }
   }
-
-  // ── Phase 1: Deep tree scan (single pass) ───────────────
-  emit({ phase: 'deep-scan', message: 'Deep scanning file tree…' });
-
-  const deepPatterns = allChecks.filter((c) => c.type === 'deep-scan').map((c) => c.deepPattern);
-
-  const { results: deepResults, filesScanned, dirsScanned } = deepScan(rootDir, deepPatterns);
-
-  emit({ phase: 'deep-scan-done', filesScanned, dirsScanned });
 
   // ── Phase 2: Evaluate each check ────────────────────────
   const totalChecks = allChecks.length;
