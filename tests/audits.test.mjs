@@ -7,7 +7,7 @@ import { describe, it } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { existsSync, statSync, readFileSync, readdirSync } from 'fs';
 import { join, dirname, relative } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const AUDITS_DIR = join(__dirname, '..', 'src', 'audits');
@@ -20,7 +20,7 @@ const auditFiles = readdirSync(AUDITS_DIR)
   .sort();
 const audits = [];
 for (const file of auditFiles) {
-  const mod = await import(join(AUDITS_DIR, file));
+  const mod = await import(pathToFileURL(join(AUDITS_DIR, file)).href);
   audits.push({ file, mod });
 }
 
