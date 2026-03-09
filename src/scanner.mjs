@@ -1,6 +1,6 @@
 import { existsSync, statSync, readFileSync, readdirSync } from 'fs';
 import { join, relative, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 // ─── Ignored directories during tree walks ────────────────────────────
 const SKIP_DIRS = new Set([
@@ -43,7 +43,7 @@ async function loadAudits() {
 
   const audits = [];
   for (const file of files) {
-    const mod = await import(join(AUDITS_DIR, file));
+    const mod = await import(pathToFileURL(join(AUDITS_DIR, file)).href);
     audits.push({
       file,
       section: mod.section,
