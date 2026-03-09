@@ -3,12 +3,10 @@
  * Zero dependencies — uses only ANSI escape codes + Node built-ins.
  */
 
-import { createInterface } from 'readline';
-
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
-const ITALIC = '\x1b[3m';
+//const ITALIC = '\x1b[3m';
 const RED = '\x1b[31m';
 const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
@@ -16,7 +14,7 @@ const BLUE = '\x1b[34m';
 const CYAN = '\x1b[36m';
 const WHITE = '\x1b[37m';
 const GRAY = '\x1b[90m';
-const MAGENTA = '\x1b[35m';
+//const MAGENTA = '\x1b[35m';
 const BG_GREEN = '\x1b[42m';
 const BG_YELLOW = '\x1b[43m';
 const BG_RED = '\x1b[41m';
@@ -149,7 +147,7 @@ function renderItem(item) {
 // ───────────────────────────────────────────────────────────────────────
 
 const MOVE_UP = (n) => (n > 0 ? `\x1b[${n}A` : '');
-const MOVE_DOWN = (n) => (n > 0 ? `\x1b[${n}B` : '');
+//const MOVE_DOWN = (n) => (n > 0 ? `\x1b[${n}B` : '');
 
 const MAX_VISIBLE_ITEMS = 5;
 

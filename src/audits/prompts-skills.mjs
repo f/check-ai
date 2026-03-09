@@ -9,12 +9,7 @@ import { join } from 'path';
 
 export const section = 'Prompts & Skills';
 
-const PROMPT_SIGNALS = [
-  'prompts',
-  '.prompts',
-  '.ai/prompts',
-  '.claude/commands',
-];
+const PROMPT_SIGNALS = ['prompts', '.prompts', '.ai/prompts', '.claude/commands'];
 
 export const checks = [
   // Bonus: having ANY prompt or skill file is the big signal.
